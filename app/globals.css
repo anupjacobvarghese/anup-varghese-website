@@ -3285,10 +3285,10 @@ em {
 }
 
 footer {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 3rem;
+  display: flex;
+  justify-content: center;
   align-items: center;
+  gap: 1.25rem;
   padding: 0.65rem clamp(1.25rem, 5vw, 6rem);
   color: rgba(255, 255, 255, 0.55);
   background: #080909;
@@ -3703,7 +3703,7 @@ footer p {
   }
 
   footer {
-    grid-template-columns: 1fr;
+    flex-direction: column;
     gap: 1.2rem;
     text-align: center;
   }

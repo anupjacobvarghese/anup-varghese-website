@@ -1344,6 +1344,7 @@ export function Website() {
           <video
             className="hero-video"
             autoPlay
+            loop
             muted={heroAudioLive ? false : heroMuted}
             playsInline
             poster="/media/speaking/featured-speaker.png"
