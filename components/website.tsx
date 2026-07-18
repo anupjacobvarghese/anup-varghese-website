@@ -589,6 +589,7 @@ export function Website() {
   const [focusTyping, setFocusTyping] = useState(true);
   const [focusAnnounce, setFocusAnnounce] = useState("");
   const heroVideoRef = useRef<HTMLVideoElement>(null);
+  const heroAudioUnlockCleanupRef = useRef<(() => void) | null>(null);
   const metricsRef = useRef<HTMLDivElement>(null);
   const launchDateRef = useRef<HTMLDivElement>(null);
   const bookSectionRef = useRef<HTMLElement>(null);
@@ -601,12 +602,103 @@ export function Website() {
     const video = heroVideoRef.current;
     if (!video) return;
 
-    video.muted = false;
-    void video.play().catch(() => {
+    const SESSION_KEY = "av-hero-audio-handled";
+    const markHandled = () => {
+      try {
+        sessionStorage.setItem(SESSION_KEY, "1");
+      } catch {
+        /* private mode / blocked storage */
+      }
+    };
+    const wasHandled = (() => {
+      try {
+        return sessionStorage.getItem(SESSION_KEY) === "1";
+      } catch {
+        return false;
+      }
+    })();
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    const playMuted = () => {
       video.muted = true;
       setHeroMuted(true);
+      return video.play().catch(() => undefined);
+    };
+
+    const disarmGestureUnlock = () => {
+      heroAudioUnlockCleanupRef.current?.();
+      heroAudioUnlockCleanupRef.current = null;
+    };
+
+    const unlockAudio = () => {
+      disarmGestureUnlock();
+      video.muted = false;
+      setHeroMuted(false);
       void video.play().catch(() => undefined);
-    });
+      markHandled();
+    };
+
+    const armGestureUnlock = () => {
+      disarmGestureUnlock();
+      const events = ["pointerdown", "keydown", "scroll"] as const;
+      const onGesture = (event: Event) => {
+        if (event.type === "scroll") {
+          // Scroll usually is not a media user-gesture; only commit on success.
+          video.muted = false;
+          setHeroMuted(false);
+          void video
+            .play()
+            .then(() => {
+              disarmGestureUnlock();
+              markHandled();
+            })
+            .catch(() => {
+              video.muted = true;
+              setHeroMuted(true);
+            });
+          return;
+        }
+
+        const target = event.target;
+        if (target instanceof Element && target.closest(".video-control")) {
+          return;
+        }
+        unlockAudio();
+      };
+      for (const type of events) {
+        window.addEventListener(type, onGesture, {
+          capture: true,
+          passive: true,
+        });
+      }
+      heroAudioUnlockCleanupRef.current = () => {
+        for (const type of events) {
+          window.removeEventListener(type, onGesture, true);
+        }
+      };
+    };
+
+    if (reduceMotion || wasHandled) {
+      void playMuted();
+      return () => disarmGestureUnlock();
+    }
+
+    video.muted = false;
+    setHeroMuted(false);
+    void video
+      .play()
+      .then(() => {
+        markHandled();
+      })
+      .catch(() => {
+        void playMuted().then(() => {
+          armGestureUnlock();
+        });
+      });
+
+    return () => disarmGestureUnlock();
   }, []);
 
   useEffect(() => {
@@ -965,6 +1057,13 @@ export function Website() {
   function toggleHeroSound() {
     const video = heroVideoRef.current;
     if (!video) return;
+    heroAudioUnlockCleanupRef.current?.();
+    heroAudioUnlockCleanupRef.current = null;
+    try {
+      sessionStorage.setItem("av-hero-audio-handled", "1");
+    } catch {
+      /* private mode / blocked storage */
+    }
     const nextMuted = !video.muted;
     video.muted = nextMuted;
     setHeroMuted(nextMuted);
