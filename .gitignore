@@ -1,0 +1,29 @@
+# dependencies
+/node_modules
+
+# Next.js
+/.next
+/out
+
+# production
+/build
+
+# local configuration
+.env
+.env*.local
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# system and editor
+.DS_Store
+Thumbs.db
+*.tsbuildinfo
+
+# Oversized local source media (use public/ optimized assets)
+Media/Videos/
+*.MOV
+*.mov
+
