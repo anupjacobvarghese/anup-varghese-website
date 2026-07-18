@@ -496,12 +496,74 @@ em {
   font-weight: 700;
 }
 
-.video-control {
+.video-control-wrap {
   position: absolute;
   z-index: 4;
-  left: auto;
   right: 6rem;
   bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.audio-wave {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 3px;
+  height: 1rem;
+  padding-right: 0.95rem;
+  pointer-events: none;
+}
+
+.audio-wave-bar {
+  display: block;
+  width: 2.5px;
+  height: 100%;
+  border-radius: 1px;
+  background: color-mix(in srgb, var(--gold) 68%, #fffdf8);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--gold) 35%, transparent);
+  opacity: 0.88;
+  transform: scaleY(0.28);
+  transform-origin: center bottom;
+  will-change: transform;
+}
+
+.audio-wave.is-fallback .audio-wave-bar:nth-child(1) {
+  animation: audio-wave-pulse 1.15s ease-in-out infinite;
+}
+.audio-wave.is-fallback .audio-wave-bar:nth-child(2) {
+  animation: audio-wave-pulse 1.15s ease-in-out 0.12s infinite;
+}
+.audio-wave.is-fallback .audio-wave-bar:nth-child(3) {
+  animation: audio-wave-pulse 1.15s ease-in-out 0.24s infinite;
+}
+.audio-wave.is-fallback .audio-wave-bar:nth-child(4) {
+  animation: audio-wave-pulse 1.15s ease-in-out 0.08s infinite;
+}
+.audio-wave.is-fallback .audio-wave-bar:nth-child(5) {
+  animation: audio-wave-pulse 1.15s ease-in-out 0.2s infinite;
+}
+
+@keyframes audio-wave-pulse {
+  0%,
+  100% {
+    transform: scaleY(0.22);
+    opacity: 0.55;
+  }
+  50% {
+    transform: scaleY(0.78);
+    opacity: 0.95;
+  }
+}
+
+.video-control {
+  position: relative;
+  z-index: 4;
+  left: auto;
+  right: auto;
+  bottom: auto;
   display: flex;
   gap: 0.85rem;
   align-items: center;
@@ -3396,10 +3458,15 @@ footer p {
     min-width: auto;
   }
 
-  .video-control {
-    left: auto;
+  .video-control-wrap {
     right: 1.25rem;
     bottom: 1.25rem;
+  }
+
+  .video-control {
+    left: auto;
+    right: auto;
+    bottom: auto;
   }
 
   .scroll-cue {
@@ -3660,6 +3727,7 @@ footer p {
     display: none;
   }
 
+  .video-control-wrap,
   .video-control {
     display: none;
   }

@@ -571,9 +571,21 @@ function SpeakingStats() {
   );
 }
 
+const HERO_WAVE_BARS = 5;
+
+type HeroAudioGraph = {
+  ctx: AudioContext;
+  analyser: AnalyserNode;
+  gain: GainNode;
+};
+
+const heroAudioGraphs = new WeakMap<HTMLMediaElement, HeroAudioGraph>();
+
 export function Website() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [heroMuted, setHeroMuted] = useState(false);
+  const [heroAudioLive, setHeroAudioLive] = useState(false);
+  const [heroWaveEnabled, setHeroWaveEnabled] = useState(true);
   const [formState, setFormState] = useState<SubmitState>("idle");
   const [notifyState, setNotifyState] = useState<SubmitState>("idle");
   const [industryIndex, setIndustryIndex] = useState(0);
@@ -594,6 +606,9 @@ export function Website() {
   const [focusAnnounce, setFocusAnnounce] = useState("");
   const heroVideoRef = useRef<HTMLVideoElement>(null);
   const heroAudioUnlockCleanupRef = useRef<(() => void) | null>(null);
+  const heroAnalyserRef = useRef<AnalyserNode | null>(null);
+  const heroGainRef = useRef<GainNode | null>(null);
+  const heroWaveBarsRef = useRef<(HTMLSpanElement | null)[]>([]);
   const metricsRef = useRef<HTMLDivElement>(null);
   const launchDateRef = useRef<HTMLDivElement>(null);
   const bookSectionRef = useRef<HTMLElement>(null);
@@ -601,6 +616,105 @@ export function Website() {
   const speakingActionsRef = useRef<HTMLDivElement>(null);
   const offeringListRef = useRef<HTMLDivElement>(null);
   const contactRef = useRef<HTMLElement>(null);
+
+  function applyHeroMuteState(muted: boolean) {
+    setHeroMuted(muted);
+    const video = heroVideoRef.current;
+    const gain = heroGainRef.current;
+    if (gain) {
+      gain.gain.value = muted ? 0 : 1;
+      if (video) video.muted = false;
+      return;
+    }
+    if (video) video.muted = muted;
+  }
+
+  async function ensureHeroAudioGraph(muted: boolean) {
+    const video = heroVideoRef.current;
+    if (!video) return false;
+
+    try {
+      let graph = heroAudioGraphs.get(video);
+      if (!graph) {
+        const AudioCtx =
+          window.AudioContext ||
+          (
+            window as unknown as {
+              webkitAudioContext: typeof AudioContext;
+            }
+          ).webkitAudioContext;
+        const ctx = new AudioCtx();
+        // Only attach MediaElementSource once the context can run.
+        // Connecting while suspended would silence native video audio.
+        if (ctx.state === "suspended") {
+          await ctx.resume();
+        }
+        if (ctx.state !== "running") {
+          await ctx.close().catch(() => undefined);
+          return false;
+        }
+        const source = ctx.createMediaElementSource(video);
+        const analyser = ctx.createAnalyser();
+        analyser.fftSize = 128;
+        analyser.smoothingTimeConstant = 0.72;
+        const gain = ctx.createGain();
+        gain.gain.value = muted ? 0 : 1;
+        source.connect(analyser);
+        analyser.connect(gain);
+        gain.connect(ctx.destination);
+        graph = { ctx, analyser, gain };
+        heroAudioGraphs.set(video, graph);
+      } else if (graph.ctx.state === "suspended") {
+        await graph.ctx.resume();
+        if (graph.ctx.state !== "running") return false;
+      }
+
+      heroAnalyserRef.current = graph.analyser;
+      heroGainRef.current = graph.gain;
+      // Element must stay unmuted so the analyser receives frequency data;
+      // audible mute is GainNode at 0.
+      video.muted = false;
+      graph.gain.gain.value = muted ? 0 : 1;
+      setHeroAudioLive(true);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  useEffect(() => {
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    setHeroWaveEnabled(!reduceMotion);
+  }, []);
+
+  useEffect(() => {
+    if (!heroWaveEnabled || !heroAudioLive) return;
+    const analyser = heroAnalyserRef.current;
+    if (!analyser) return;
+
+    const data = new Uint8Array(analyser.frequencyBinCount);
+    let raf = 0;
+    const tick = () => {
+      analyser.getByteFrequencyData(data);
+      const usable = Math.max(8, Math.floor(data.length * 0.45));
+      for (let i = 0; i < HERO_WAVE_BARS; i++) {
+        const bar = heroWaveBarsRef.current[i];
+        if (!bar) continue;
+        const start = Math.floor((i / HERO_WAVE_BARS) * usable);
+        const end = Math.floor(((i + 1) / HERO_WAVE_BARS) * usable);
+        let sum = 0;
+        for (let j = start; j < end; j++) sum += data[j] ?? 0;
+        const avg = sum / Math.max(1, end - start) / 255;
+        const scale = 0.18 + avg * 0.82;
+        bar.style.transform = `scaleY(${scale.toFixed(3)})`;
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [heroWaveEnabled, heroAudioLive]);
 
   useEffect(() => {
     const video = heroVideoRef.current;
@@ -626,8 +740,7 @@ export function Website() {
     ).matches;
 
     const playMuted = () => {
-      video.muted = true;
-      setHeroMuted(true);
+      applyHeroMuteState(true);
       return video.play().catch(() => undefined);
     };
 
@@ -638,10 +751,11 @@ export function Website() {
 
     const unlockAudio = () => {
       disarmGestureUnlock();
-      video.muted = false;
-      setHeroMuted(false);
-      void video.play().catch(() => undefined);
-      markHandled();
+      void ensureHeroAudioGraph(false).then(() => {
+        applyHeroMuteState(false);
+        void video.play().catch(() => undefined);
+        markHandled();
+      });
     };
 
     const armGestureUnlock = () => {
@@ -650,23 +764,26 @@ export function Website() {
       const onGesture = (event: Event) => {
         if (event.type === "scroll") {
           // Scroll usually is not a media user-gesture; only commit on success.
-          video.muted = false;
-          setHeroMuted(false);
-          void video
-            .play()
-            .then(() => {
-              disarmGestureUnlock();
-              markHandled();
-            })
-            .catch(() => {
-              video.muted = true;
-              setHeroMuted(true);
-            });
+          void ensureHeroAudioGraph(false).then(() => {
+            applyHeroMuteState(false);
+            void video
+              .play()
+              .then(() => {
+                disarmGestureUnlock();
+                markHandled();
+              })
+              .catch(() => {
+                applyHeroMuteState(true);
+              });
+          });
           return;
         }
 
         const target = event.target;
-        if (target instanceof Element && target.closest(".video-control")) {
+        if (
+          target instanceof Element &&
+          target.closest(".video-control-wrap")
+        ) {
           return;
         }
         unlockAudio();
@@ -689,8 +806,7 @@ export function Website() {
       return () => disarmGestureUnlock();
     }
 
-    video.muted = false;
-    setHeroMuted(false);
+    applyHeroMuteState(false);
     void video
       .play()
       .then(() => {
@@ -703,6 +819,7 @@ export function Website() {
       });
 
     return () => disarmGestureUnlock();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-only autoplay unlock
   }, []);
 
   useEffect(() => {
@@ -1068,18 +1185,26 @@ export function Website() {
     } catch {
       /* private mode / blocked storage */
     }
-    const nextMuted = !video.muted;
-    video.muted = nextMuted;
-    setHeroMuted(nextMuted);
-    if (!nextMuted) void video.play().catch(() => undefined);
+    const nextMuted = !heroMuted;
+    void ensureHeroAudioGraph(nextMuted).then((ok) => {
+      if (ok) {
+        setHeroMuted(nextMuted);
+        if (heroGainRef.current) {
+          heroGainRef.current.gain.value = nextMuted ? 0 : 1;
+        }
+        video.muted = false;
+      } else {
+        applyHeroMuteState(nextMuted);
+      }
+      if (!nextMuted) void video.play().catch(() => undefined);
+    });
   }
 
   function replayHeroMuted() {
     const video = heroVideoRef.current;
     if (!video) return;
-    video.muted = true;
     video.currentTime = 0;
-    setHeroMuted(true);
+    applyHeroMuteState(true);
     void video.play().catch(() => undefined);
   }
 
@@ -1219,7 +1344,7 @@ export function Website() {
           <video
             className="hero-video"
             autoPlay
-            muted={heroMuted}
+            muted={heroAudioLive ? false : heroMuted}
             playsInline
             poster="/media/speaking/featured-speaker.png"
             ref={heroVideoRef}
@@ -1232,15 +1357,33 @@ export function Website() {
           <a className="hero-logo" href="#top" aria-label="Anup Varghese home">
             <Mark />
           </a>
-          <button
-            className={`video-control${heroMuted ? " is-inviting" : ""}`}
-            type="button"
-            onClick={toggleHeroSound}
-            aria-label={heroMuted ? "Play video audio" : "Mute video audio"}
-          >
-            {heroMuted ? "Play audio" : "Mute audio"}
-            <span>{heroMuted ? "♪" : "×"}</span>
-          </button>
+          <div className="video-control-wrap">
+            {heroWaveEnabled ? (
+              <div
+                className={`audio-wave${heroAudioLive ? " is-live" : " is-fallback"}`}
+                aria-hidden="true"
+              >
+                {Array.from({ length: HERO_WAVE_BARS }, (_, index) => (
+                  <span
+                    key={index}
+                    className="audio-wave-bar"
+                    ref={(el) => {
+                      heroWaveBarsRef.current[index] = el;
+                    }}
+                  />
+                ))}
+              </div>
+            ) : null}
+            <button
+              className={`video-control${heroMuted ? " is-inviting" : ""}`}
+              type="button"
+              onClick={toggleHeroSound}
+              aria-label={heroMuted ? "Play video audio" : "Mute video audio"}
+            >
+              {heroMuted ? "Play audio" : "Mute audio"}
+              <span>{heroMuted ? "♪" : "×"}</span>
+            </button>
+          </div>
         </div>
         <div className="scroll-cue" aria-hidden="true">
           Scroll to discover <span />
