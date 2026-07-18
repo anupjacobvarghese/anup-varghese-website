@@ -1229,7 +1229,7 @@ export function Website() {
             <Mark />
           </a>
           <button
-            className="video-control"
+            className={`video-control${heroMuted ? " is-inviting" : ""}`}
             type="button"
             onClick={toggleHeroSound}
             aria-label={heroMuted ? "Play video audio" : "Mute video audio"}
