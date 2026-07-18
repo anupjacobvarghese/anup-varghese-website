@@ -666,7 +666,9 @@ export function Website() {
         heroAudioGraphs.set(video, graph);
       } else if (graph.ctx.state === "suspended") {
         await graph.ctx.resume();
-        if (graph.ctx.state !== "running") return false;
+        // After resume(), state may still be suspended/closed depending on browser policy.
+        const state = graph.ctx.state as AudioContextState;
+        if (state !== "running") return false;
       }
 
       heroAnalyserRef.current = graph.analyser;
@@ -1243,6 +1245,8 @@ export function Website() {
 
       // Web3Forms must be called from the browser on the free plan.
       // Server-side proxying returns 403 ("This method is not allowed").
+      // Do not forward honeypot `company_website` to Web3Forms.
+      // `botcheck` must stay empty/false (Web3Forms spam honeypot).
       const payload = {
         access_key: accessKey,
         subject:
@@ -1250,6 +1254,7 @@ export function Website() {
             ? "New book launch signup"
             : `New ${fields.interest ?? "website"} enquiry from ${fields.name}`,
         from_name: "anupvarghese.com",
+        botcheck: "",
         name:
           kind === "book"
             ? "Book subscriber"
