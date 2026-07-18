@@ -1611,6 +1611,11 @@ export function Website() {
                       />
                     </div>
                   ))}
+                  <div
+                    className="speaking-carousel-progress"
+                    key={speakingIndex}
+                    aria-hidden="true"
+                  />
                 </div>
                 <div
                   className={`offering-list${offeringsVisible ? " is-visible" : ""}`}

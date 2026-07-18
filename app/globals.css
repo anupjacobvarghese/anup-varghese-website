@@ -1301,6 +1301,47 @@ em {
   object-position: center;
 }
 
+/* Barely-there next-slide hint — soft gold, bottom-right of image frame */
+.speaking-carousel-progress {
+  position: absolute;
+  right: 0.7rem;
+  bottom: 0.55rem;
+  z-index: 3;
+  width: 52px;
+  height: 2px;
+  pointer-events: none;
+  border-radius: 1px;
+  background: color-mix(in srgb, var(--gold) 18%, transparent);
+  overflow: hidden;
+}
+
+.speaking-carousel-progress::after {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background: color-mix(in srgb, var(--gold) 55%, transparent);
+  transform-origin: left center;
+  transform: scaleX(0);
+  animation: speaking-carousel-progress 2500ms linear forwards;
+}
+
+@keyframes speaking-carousel-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .speaking-carousel-progress {
+    display: none;
+  }
+}
+
 .offering-list {
   display: grid;
   grid-template-columns: 1fr 1fr;
