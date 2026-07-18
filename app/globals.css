@@ -1409,6 +1409,50 @@ em {
   stroke-width: 1.5;
 }
 
+.offering-label {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.28rem 0.35rem;
+  align-items: center;
+  min-width: 0;
+}
+
+.speaking .most-popular-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.08rem 0.32rem;
+  border: 1px solid color-mix(in srgb, #b794f6 55%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, #b794f6 14%, #0b0c0d);
+  color: #b794f6;
+  font-size: 0.52rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  animation: most-popular-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes most-popular-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+    box-shadow: 0 0 0 transparent;
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 6px color-mix(in srgb, #b794f6 35%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .speaking .most-popular-badge {
+    animation: none;
+    opacity: 0.9;
+  }
+}
+
 .speaking .stat-row {
   margin: 0.85rem 0;
   border: none;

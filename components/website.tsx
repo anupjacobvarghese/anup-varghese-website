@@ -23,8 +23,12 @@ const affiliations = [
   { src: "/media/logos/beroe-v2.png", alt: "Beroe" },
 ];
 
-const speakerOfferings = [
-  { label: "Motivational talks", icon: "mic" },
+const speakerOfferings: {
+  label: string;
+  icon: string;
+  mostPopular?: boolean;
+}[] = [
+  { label: "Motivational talks", icon: "mic", mostPopular: true },
   { label: "School & university keynotes", icon: "stage" },
   { label: "Student and career counselling", icon: "compass" },
   { label: "Ask-me-anything sessions", icon: "chat" },
@@ -1624,7 +1628,17 @@ export function Website() {
                   {speakerOfferings.map((item) => (
                     <div key={item.label}>
                       <OfferingIcon icon={item.icon} />
-                      {item.label}
+                      <span className="offering-label">
+                        {item.label}
+                        {item.mostPopular ? (
+                          <span
+                            className="most-popular-badge"
+                            title="Most Popular"
+                          >
+                            Most Popular
+                          </span>
+                        ) : null}
+                      </span>
                     </div>
                   ))}
                 </div>
