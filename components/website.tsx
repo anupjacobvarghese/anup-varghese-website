@@ -1590,7 +1590,10 @@ export function Website() {
                   className={`speaking-actions${speakingCtaVisible ? " is-visible" : ""}`}
                   ref={speakingActionsRef}
                 >
-                  <a className="button button-coral" href="#contact">
+                  <a
+                    className="button button-coral speaking-invite-cta"
+                    href="#contact"
+                  >
                     Invite Anup to speak <ArrowIcon />
                   </a>
                 </div>
