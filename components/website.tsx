@@ -1575,7 +1575,7 @@ export function Website() {
                 </h2>
                 <p className="lead">
                   Inspiration matters. But it matters most when it becomes
-                  direction. I help young people see what is possible—and leave
+                  direction. I help young people see what is possible, and leave
                   with practical next steps to move toward it.
                 </p>
                 <p className="speaker-caption-inline">
