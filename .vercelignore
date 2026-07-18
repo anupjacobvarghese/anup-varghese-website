@@ -1,0 +1,12 @@
+﻿# Root local source media only (do not exclude public/media)
+/Media
+/node_modules
+/.next
+/.git
+/out
+/build
+.env
+.env*.local
+*.MOV
+*.mov
+*.tsbuildinfo

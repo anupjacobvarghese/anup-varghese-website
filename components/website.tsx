@@ -592,7 +592,7 @@ export function Website() {
   const metricsRef = useRef<HTMLDivElement>(null);
   const launchDateRef = useRef<HTMLDivElement>(null);
   const bookSectionRef = useRef<HTMLElement>(null);
-  const bookJacketRef = useRef<HTMLFigureElement>(null);
+  const bookJacketRef = useRef<HTMLElement>(null);
   const speakingActionsRef = useRef<HTMLDivElement>(null);
   const offeringListRef = useRef<HTMLDivElement>(null);
   const contactRef = useRef<HTMLElement>(null);
