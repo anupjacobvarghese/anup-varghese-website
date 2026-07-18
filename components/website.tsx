@@ -1206,7 +1206,7 @@ export function Website() {
               <strong className="hero-emphasis">ambition into direction.</strong>
             </p>
             <div className="hero-actions">
-              <a className="button button-light" href="#paths">
+              <a className="button button-light cta-shine" href="#paths">
                 Explore my work <ArrowIcon />
               </a>
               <a className="text-link" href="#contact">
@@ -1591,7 +1591,7 @@ export function Website() {
                   ref={speakingActionsRef}
                 >
                   <a
-                    className="button button-coral speaking-invite-cta"
+                    className="button button-coral speaking-invite-cta cta-shine"
                     href="#contact"
                   >
                     Invite Anup to speak <ArrowIcon />

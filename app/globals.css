@@ -983,7 +983,7 @@ em {
 }
 
 /* Paths CTAs: sit above affiliation fade; slightly larger / clearer gold.
-   Dedicated blink (stronger than Invite CTA’s speaking-cta-glow). */
+   Dedicated blink (stronger than Invite CTA’s cta-shine-glow). */
 .path-card > .circle-arrow {
   z-index: 3;
   width: 5rem;
@@ -1165,14 +1165,14 @@ em {
     box-shadow 220ms ease;
 }
 
-/* Invite speak CTA only — premium sheen + glow (not other site buttons) */
-.speaking-actions .speaking-invite-cta {
+/* Shared premium CTA — sheen + glow + arrow (hero + invite) */
+.cta-shine {
   position: relative;
   overflow: hidden;
   isolation: isolate;
 }
 
-.speaking-actions .speaking-invite-cta::before {
+.cta-shine::before {
   content: "";
   position: absolute;
   inset: -20% -40%;
@@ -1193,6 +1193,11 @@ em {
   mix-blend-mode: soft-light;
 }
 
+.cta-shine svg {
+  position: relative;
+  z-index: 2;
+}
+
 .speaking-actions .button svg {
   display: block;
   width: 1.05rem;
@@ -1200,23 +1205,35 @@ em {
   flex-shrink: 0;
   margin: 0;
   align-self: center;
-  position: relative;
-  z-index: 2;
 }
 
-.speaking-actions.is-visible .speaking-invite-cta {
+/* Hero Explore CTA — animate on load */
+.hero-actions .cta-shine {
+  animation: cta-shine-glow 3.2s ease-in-out 0.6s infinite;
+}
+
+.hero-actions .cta-shine::before {
+  animation: cta-shine-sheen 4.2s cubic-bezier(0.4, 0, 0.2, 1) 0.8s infinite;
+}
+
+.hero-actions .cta-shine svg {
+  animation: cta-shine-arrow 3.2s ease-in-out 0.6s infinite;
+}
+
+/* Speaking invite — animate after scroll reveal */
+.speaking-actions.is-visible .cta-shine {
   opacity: 1;
   animation:
     speaking-cta-fade 780ms cubic-bezier(0.22, 1, 0.36, 1) both,
-    speaking-cta-glow 3.2s ease-in-out 900ms infinite;
+    cta-shine-glow 3.2s ease-in-out 900ms infinite;
 }
 
-.speaking-actions.is-visible .speaking-invite-cta::before {
-  animation: speaking-cta-sheen 4.2s cubic-bezier(0.4, 0, 0.2, 1) 1.1s infinite;
+.speaking-actions.is-visible .cta-shine::before {
+  animation: cta-shine-sheen 4.2s cubic-bezier(0.4, 0, 0.2, 1) 1.1s infinite;
 }
 
-.speaking-actions.is-visible .speaking-invite-cta svg {
-  animation: speaking-cta-arrow 3.2s ease-in-out 900ms infinite;
+.speaking-actions.is-visible .cta-shine svg {
+  animation: cta-shine-arrow 3.2s ease-in-out 900ms infinite;
 }
 
 .speaking-actions .button:hover,
@@ -1227,23 +1244,38 @@ em {
 }
 
 /* Hover / focus: solid ready-to-click — pause looping motion */
-.speaking-actions.is-visible .speaking-invite-cta:hover,
-.speaking-actions.is-visible .speaking-invite-cta:focus-visible {
+.hero-actions .cta-shine:hover,
+.hero-actions .cta-shine:focus-visible,
+.speaking-actions.is-visible .cta-shine:hover,
+.speaking-actions.is-visible .cta-shine:focus-visible {
+  box-shadow: 0 4px 18px rgba(176, 140, 70, 0.35);
+}
+
+.hero-actions .cta-shine:hover,
+.hero-actions .cta-shine:focus-visible {
+  animation: none;
+}
+
+.speaking-actions.is-visible .cta-shine:hover,
+.speaking-actions.is-visible .cta-shine:focus-visible {
   animation: speaking-cta-fade 780ms cubic-bezier(0.22, 1, 0.36, 1) both;
   opacity: 1;
-  box-shadow: 0 4px 18px rgba(176, 140, 70, 0.35);
   transform: translateY(-1px) scale(1.02);
 }
 
-.speaking-actions.is-visible .speaking-invite-cta:hover::before,
-.speaking-actions.is-visible .speaking-invite-cta:focus-visible::before {
+.hero-actions .cta-shine:hover::before,
+.hero-actions .cta-shine:focus-visible::before,
+.speaking-actions.is-visible .cta-shine:hover::before,
+.speaking-actions.is-visible .cta-shine:focus-visible::before {
   animation: none;
   opacity: 0;
   transform: translateX(-75%) skewX(-16deg);
 }
 
-.speaking-actions .speaking-invite-cta:hover svg,
-.speaking-actions .speaking-invite-cta:focus-visible svg {
+.hero-actions .cta-shine:hover svg,
+.hero-actions .cta-shine:focus-visible svg,
+.speaking-actions .cta-shine:hover svg,
+.speaking-actions .cta-shine:focus-visible svg {
   animation: none;
   transform: translateX(4px);
 }
@@ -1258,7 +1290,7 @@ em {
 }
 
 /* Soft gold glow — no opacity flicker (stays fully readable) */
-@keyframes speaking-cta-glow {
+@keyframes cta-shine-glow {
   0%,
   100% {
     box-shadow: 0 0 0 0 rgba(208, 178, 113, 0);
@@ -1273,7 +1305,7 @@ em {
 }
 
 /* Diagonal glare sweeping left → right */
-@keyframes speaking-cta-sheen {
+@keyframes cta-shine-sheen {
   0%,
   12% {
     transform: translateX(-75%) skewX(-16deg);
@@ -1294,7 +1326,7 @@ em {
 }
 
 /* Subtle arrow nudge in sync with glow */
-@keyframes speaking-cta-arrow {
+@keyframes cta-shine-arrow {
   0%,
   100% {
     transform: translateX(0);
@@ -1305,12 +1337,17 @@ em {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .hero-actions .cta-shine,
+  .hero-actions .cta-shine:hover,
+  .hero-actions .cta-shine:focus-visible,
+  .hero-actions .cta-shine::before,
+  .hero-actions .cta-shine svg,
   .speaking-actions .button,
-  .speaking-actions.is-visible .speaking-invite-cta,
-  .speaking-actions.is-visible .speaking-invite-cta:hover,
-  .speaking-actions.is-visible .speaking-invite-cta:focus-visible,
-  .speaking-actions.is-visible .speaking-invite-cta::before,
-  .speaking-actions.is-visible .speaking-invite-cta svg {
+  .speaking-actions.is-visible .cta-shine,
+  .speaking-actions.is-visible .cta-shine:hover,
+  .speaking-actions.is-visible .cta-shine:focus-visible,
+  .speaking-actions.is-visible .cta-shine::before,
+  .speaking-actions.is-visible .cta-shine svg {
     opacity: 1;
     box-shadow: none;
     filter: none;
