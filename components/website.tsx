@@ -1226,13 +1226,60 @@ export function Website() {
     setter("sending");
 
     try {
-      const payload = Object.fromEntries(new FormData(form).entries());
-      const response = await fetch("/api/contact", {
+      const fields = Object.fromEntries(new FormData(form).entries()) as Record<
+        string,
+        string
+      >;
+
+      // Honeypot: pretend success so bots think the form worked.
+      if (fields.company_website) {
+        setter("sent");
+        form.reset();
+        return;
+      }
+
+      const accessKey = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY;
+      if (!accessKey) throw new Error("Missing access key");
+
+      // Web3Forms must be called from the browser on the free plan.
+      // Server-side proxying returns 403 ("This method is not allowed").
+      const payload = {
+        access_key: accessKey,
+        subject:
+          kind === "book"
+            ? "New book launch signup"
+            : `New ${fields.interest ?? "website"} enquiry from ${fields.name}`,
+        from_name: "anupvarghese.com",
+        name:
+          kind === "book"
+            ? "Book subscriber"
+            : (fields.name ?? "").slice(0, 120),
+        email: (fields.email ?? "").slice(0, 160),
+        phone: (fields.phone ?? "").slice(0, 40),
+        interest:
+          kind === "book"
+            ? "Book launch"
+            : (fields.interest ?? "").slice(0, 80),
+        message:
+          kind === "book"
+            ? "Please add this email to the book launch notification list."
+            : (fields.message ?? "").slice(0, 5000),
+      };
+
+      const response = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...payload, kind }),
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(payload),
       });
-      if (!response.ok) throw new Error("Request failed");
+      const result = (await response.json().catch(() => null)) as {
+        success?: boolean;
+      } | null;
+      if (!response.ok || result?.success === false) {
+        throw new Error("Request failed");
+      }
       setter("sent");
       form.reset();
     } catch {
