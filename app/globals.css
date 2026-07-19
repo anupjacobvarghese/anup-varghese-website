@@ -745,22 +745,22 @@ em {
   inset: 0;
   height: auto;
   content: "";
-  /* Soft edge blend into black + bottom logo pad */
+  /* Soft edge blend into black + bottom logo pad; moderate photo dim */
   background:
     radial-gradient(
       ellipse 78% 72% at 50% 38%,
-      transparent 42%,
-      rgba(9, 10, 10, 0.45) 68%,
-      rgba(9, 10, 10, 0.88) 86%,
+      rgba(9, 10, 10, 0.22) 42%,
+      rgba(9, 10, 10, 0.58) 68%,
+      rgba(9, 10, 10, 0.92) 86%,
       #090a0a 100%
     ),
     linear-gradient(
       to bottom,
-      rgba(9, 10, 10, 0.55) 0%,
-      rgba(9, 10, 10, 0.18) 18%,
-      rgba(9, 10, 10, 0.28) 48%,
-      rgba(9, 10, 10, 0.75) 64%,
-      rgba(9, 10, 10, 0.96) 78%,
+      rgba(9, 10, 10, 0.68) 0%,
+      rgba(9, 10, 10, 0.35) 18%,
+      rgba(9, 10, 10, 0.45) 48%,
+      rgba(9, 10, 10, 0.82) 64%,
+      rgba(9, 10, 10, 0.97) 78%,
       #090a0a 90%,
       #090a0a 100%
     );
@@ -769,7 +769,7 @@ em {
 
 .path-card-visual img {
   object-fit: cover;
-  filter: grayscale(0.12) saturate(0.9) contrast(1.05) brightness(0.95);
+  filter: grayscale(0.12) saturate(0.9) contrast(1.05) brightness(0.72);
   transition: transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -887,13 +887,22 @@ em {
 /* END path-card join soft-merge */
 
 .path-consultant .path-card-visual::after {
+  /* Match speaker dim: moderate veil so photo is less prominent */
   background:
+    radial-gradient(
+      ellipse 78% 72% at 50% 38%,
+      rgba(18, 19, 20, 0.22) 42%,
+      rgba(18, 19, 20, 0.55) 68%,
+      rgba(12, 12, 13, 0.9) 86%,
+      #090a0a 100%
+    ),
     linear-gradient(
       to bottom,
-      transparent 0%,
-      transparent 42%,
-      rgba(18, 19, 20, 0.45) 58%,
-      rgba(12, 12, 13, 0.88) 74%,
+      rgba(18, 19, 20, 0.4) 0%,
+      rgba(18, 19, 20, 0.22) 28%,
+      rgba(18, 19, 20, 0.35) 48%,
+      rgba(18, 19, 20, 0.62) 58%,
+      rgba(12, 12, 13, 0.92) 74%,
       #090a0a 100%
     );
 }
