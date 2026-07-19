@@ -779,6 +779,8 @@ em {
 
 .path-speaker .path-card-visual img {
   object-position: center 18%;
+  /* Slight brighten vs shared path-card dim (Strategic Advisor stays at 0.72) */
+  filter: grayscale(0.12) saturate(0.9) contrast(1.05) brightness(0.8);
 }
 
 .path-speaker {
