@@ -554,3 +554,117 @@
     animation: none !important;
   }
 }
+
+/* Locked countdown page */
+.baby-locked-content {
+  width: min(100%, 48rem);
+}
+
+.baby-countdown {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(0.45rem, 2vw, 1rem);
+  margin: 0 auto 2rem;
+  max-width: 42rem;
+  opacity: 0.55;
+  transition: opacity 0.35s ease;
+}
+
+.baby-countdown.is-live {
+  opacity: 1;
+}
+
+.baby-count-unit {
+  display: grid;
+  gap: 0.45rem;
+  justify-items: center;
+  padding: clamp(0.85rem, 3vw, 1.35rem) 0.35rem;
+  border-radius: 1rem;
+  background: rgba(255, 252, 247, 0.72);
+  border: 2px solid rgba(110, 170, 212, 0.32);
+  box-shadow: 0 12px 32px var(--baby-shadow);
+}
+
+.baby-count-value {
+  font-family: var(--font-baby-display), "Quicksand", "Trebuchet MS", sans-serif;
+  font-size: clamp(2.4rem, 12vw, 5.25rem);
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, var(--baby-blue-deep), #6eaad4 45%, var(--baby-gold));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.baby-count-label {
+  font-size: clamp(0.68rem, 2.2vw, 0.82rem);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--baby-muted);
+}
+
+.baby-locked-ready {
+  margin: 0 auto 2rem;
+  font-family: var(--font-baby-display), "Quicksand", "Trebuchet MS", sans-serif;
+  font-size: clamp(1.35rem, 4vw, 1.85rem);
+  font-weight: 600;
+  color: var(--baby-blue-deep);
+}
+
+.baby-verse {
+  margin: 1.75rem auto 0;
+  max-width: 28rem;
+  padding: 1.15rem 1.25rem 1.2rem;
+  border: 0;
+  border-radius: 1rem;
+  background: rgba(255, 252, 247, 0.55);
+  box-shadow: inset 0 0 0 1px rgba(212, 176, 106, 0.28);
+}
+
+.baby-verse-text {
+  margin: 0;
+  font-family: var(--font-baby-display), "Quicksand", "Trebuchet MS", sans-serif;
+  font-size: clamp(1.02rem, 3vw, 1.2rem);
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--baby-ink);
+  font-style: italic;
+}
+
+.baby-verse-text + .baby-verse-text {
+  margin-top: 0.35rem;
+}
+
+.baby-verse-cite {
+  display: block;
+  margin-top: 0.85rem;
+  font-style: normal;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--baby-blue-deep);
+}
+
+@media (max-width: 420px) {
+  .baby-countdown {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem;
+  }
+
+  .baby-count-value {
+    font-size: clamp(2.6rem, 18vw, 3.6rem);
+  }
+}
+
+@media (max-height: 720px) {
+  .baby-countdown {
+    margin-bottom: 1.35rem;
+  }
+
+  .baby-count-unit {
+    padding: 0.75rem 0.3rem;
+  }
+}

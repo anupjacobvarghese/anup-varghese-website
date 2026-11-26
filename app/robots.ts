@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/baby"],
+      disallow: ["/baby", "/babylocked"],
     },
     sitemap: "https://anupvarghese.com/sitemap.xml",
   };

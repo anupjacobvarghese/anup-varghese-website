@@ -8,6 +8,7 @@ import {
   useState,
   type CSSProperties,
 } from "react";
+import { BabyBlessing } from "./baby-blessing";
 
 const SECRET = "DANIEL";
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
@@ -240,6 +241,8 @@ export function BabyReveal() {
             <p className="baby-thanks">Welcome to the world, little one.</p>
           </section>
         )}
+
+        <BabyBlessing />
       </div>
 
       {won && !reduceMotion && (
