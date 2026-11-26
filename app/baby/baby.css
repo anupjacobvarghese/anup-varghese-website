@@ -22,11 +22,16 @@
 .baby-page {
   position: relative;
   isolation: isolate;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   min-height: 100dvh;
   display: grid;
   place-items: center;
-  padding: clamp(1.25rem, 4vw, 2.75rem);
+  padding:
+    max(1.25rem, env(safe-area-inset-top, 0px))
+    max(1.25rem, env(safe-area-inset-right, 0px))
+    max(1.25rem, env(safe-area-inset-bottom, 0px))
+    max(1.25rem, env(safe-area-inset-left, 0px));
   background:
     radial-gradient(ellipse 90% 60% at 50% -10%, #e8f5fd 0%, transparent 55%),
     radial-gradient(ellipse 50% 40% at 100% 80%, rgba(240, 217, 160, 0.35) 0%, transparent 50%),
@@ -187,18 +192,21 @@
 .baby-slots {
   display: flex;
   justify-content: center;
-  gap: clamp(0.45rem, 2vw, 0.85rem);
+  flex-wrap: nowrap;
+  gap: clamp(0.3rem, 1.8vw, 0.85rem);
   margin-bottom: 1.35rem;
+  width: 100%;
 }
 
 .baby-slot {
   display: grid;
   place-items: center;
-  width: clamp(2.55rem, 11vw, 3.6rem);
-  height: clamp(3.1rem, 13vw, 4.4rem);
+  flex: 0 1 auto;
+  width: clamp(2.15rem, 11vw, 3.6rem);
+  height: clamp(2.75rem, 13vw, 4.4rem);
   border-radius: 0.85rem;
   font-family: var(--font-baby-display), "Quicksand", "Trebuchet MS", sans-serif;
-  font-size: clamp(1.55rem, 6vw, 2.25rem);
+  font-size: clamp(1.35rem, 6vw, 2.25rem);
   font-weight: 600;
   letter-spacing: 0.04em;
   background: rgba(255, 252, 247, 0.72);
@@ -242,6 +250,7 @@
   grid-template-columns: repeat(9, minmax(0, 1fr));
   gap: 0.45rem;
   max-width: 36rem;
+  width: 100%;
   margin: 0 auto;
 }
 
@@ -252,11 +261,44 @@
   }
 }
 
+@media (max-width: 360px) {
+  .baby-page {
+    padding:
+      max(0.9rem, env(safe-area-inset-top, 0px))
+      max(0.75rem, env(safe-area-inset-right, 0px))
+      max(0.9rem, env(safe-area-inset-bottom, 0px))
+      max(0.75rem, env(safe-area-inset-left, 0px));
+  }
+
+  .baby-keyboard {
+    gap: 0.3rem;
+  }
+
+  .baby-eyebrow {
+    letter-spacing: 0.16em;
+    font-size: 0.72rem;
+  }
+}
+
+@media (max-height: 720px) {
+  .baby-lead {
+    margin-bottom: 1.25rem;
+  }
+
+  .baby-message {
+    margin-bottom: 1rem;
+  }
+
+  .baby-slots {
+    margin-bottom: 1rem;
+  }
+}
+
 .baby-key {
   appearance: none;
   display: grid;
   place-items: center;
-  min-height: 2.65rem;
+  min-height: 2.75rem;
   padding: 0.4rem 0.2rem;
   border: 1px solid rgba(110, 170, 212, 0.32);
   border-radius: 0.7rem;
@@ -267,6 +309,8 @@
   font-weight: 600;
   letter-spacing: 0.04em;
   cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
   box-shadow: 0 4px 12px rgba(74, 110, 140, 0.1);
   transition:
     transform 0.15s ease,
@@ -324,10 +368,11 @@
 .baby-giant {
   margin: 0 0 0.55rem;
   font-family: var(--font-baby-display), "Quicksand", "Trebuchet MS", sans-serif;
-  font-size: clamp(3.4rem, 16vw, 6.5rem);
+  font-size: clamp(2.6rem, 14vw, 6.5rem);
   font-weight: 700;
   line-height: 0.95;
-  letter-spacing: 0.08em;
+  letter-spacing: clamp(0.04em, 1.5vw, 0.08em);
+  word-break: break-word;
   background: linear-gradient(135deg, var(--baby-blue-deep), #6eaad4 45%, var(--baby-gold));
   -webkit-background-clip: text;
   background-clip: text;
