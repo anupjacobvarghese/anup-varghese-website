@@ -5,6 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
+      disallow: ["/baby"],
     },
     sitemap: "https://anupvarghese.com/sitemap.xml",
   };
